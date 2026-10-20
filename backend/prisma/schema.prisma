@@ -1,0 +1,421 @@
+// ParcForm — modèle de données
+// Gestion du parc informatique et des salles de formation (DHRAT/PFORM)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────── Utilisateurs ───────────────────────────────
+
+enum Role {
+  ADMIN // administrateur de l'application
+  GESTIONNAIRE // gestionnaire de matériel informatique
+  ADMIN_SALLE // administrateur de salle technique
+  FORMATEUR // formateur
+}
+
+model Utilisateur {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  nom          String
+  prenom       String
+  passwordHash String
+  role         Role
+  actif        Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  mouvements       Mouvement[]
+  reinstallations  Reinstallation[]
+  remontees        Remontee[]         @relation("RemonteeAuteur")
+  remonteesTraitees Remontee[]        @relation("RemonteeTraitant")
+  commandes        CommandeAgent[]
+  alertesAcquittees Alerte[]
+
+  @@map("utilisateurs")
+}
+
+// ─────────────────────────────── Salles & postes ───────────────────────────────
+
+enum TypeSalle {
+  COURS
+  TECHNIQUE
+  MAGASIN // stockage du matériel non affecté
+}
+
+model Salle {
+  id        Int       @id @default(autoincrement())
+  code      String    @unique // ex : "201", "119"
+  nom       String
+  batiment  String?
+  capacite  Int       @default(0)
+  type      TypeSalle @default(COURS)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  postes          Poste[]
+  materiels       Materiel[]
+  remontees       Remontee[]
+  reglesProcessus RegleProcessus[]
+  alertes         Alerte[]
+
+  @@map("salles")
+}
+
+model Poste {
+  id                Int       @id @default(autoincrement())
+  hostname          String    @unique
+  adresseIp         String?
+  systeme           String? // ex : "Windows 11 Entreprise"
+  salleId           Int
+  /// SHA-256 du jeton de l'agent (le jeton en clair n'est jamais stocké)
+  agentTokenHash    String    @unique
+  derniereConnexion DateTime?
+  cpu               Float? // % instantané remonté par l'agent
+  ram               Float? // % instantané
+  utilisateurConnecte String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  salle            Salle               @relation(fields: [salleId], references: [id], onDelete: Restrict)
+  materiels        Materiel[]
+  applications     PosteApplication[]
+  processus        ProcessusActif[]
+  reinstallations  Reinstallation[]
+  remontees        Remontee[]
+  commandes        CommandeAgent[]
+  echantillons     EchantillonUsage[]
+  statsProcessus   StatProcessus[]
+  alertes          Alerte[]
+
+  @@index([salleId])
+  @@map("postes")
+}
+
+// ─────────────────────────────── Matériels ───────────────────────────────
+
+model TypeMateriel {
+  id                Int    @id @default(autoincrement())
+  libelle           String @unique // UC, Écran, Switch, Clavier…
+  /// Durée pendant laquelle le matériel est apte au service (avant réforme)
+  dureeAptitudeMois Int    @default(60)
+
+  materiels  Materiel[]
+  formations Formation[] @relation("FormationsInduites")
+
+  @@map("types_materiel")
+}
+
+/// Formation qu'un utilisateur doit suivre pour utiliser / administrer un type de matériel
+model Formation {
+  id          Int     @id @default(autoincrement())
+  intitule    String  @unique
+  description String?
+  dureeHeures Int     @default(1)
+
+  typesMateriel TypeMateriel[] @relation("FormationsInduites")
+
+  @@map("formations")
+}
+
+enum EtatMateriel {
+  EN_STOCK
+  EN_SERVICE
+  EN_PANNE
+  EN_REPARATION
+  REFORME
+}
+
+model Materiel {
+  id            Int          @id @default(autoincrement())
+  numeroSerie   String       @unique
+  marque        String
+  modele        String
+  typeId        Int
+  etat          EtatMateriel @default(EN_STOCK)
+  dateReception DateTime     @default(now())
+  origine       String       @default("CND")
+  salleId       Int?
+  posteId       Int?
+  commentaire   String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  type       TypeMateriel @relation(fields: [typeId], references: [id], onDelete: Restrict)
+  salle      Salle?       @relation(fields: [salleId], references: [id], onDelete: SetNull)
+  poste      Poste?       @relation(fields: [posteId], references: [id], onDelete: SetNull)
+  mouvements Mouvement[]
+  alertes    Alerte[]
+
+  @@index([salleId])
+  @@index([typeId])
+  @@index([etat])
+  @@map("materiels")
+}
+
+/// Historique des affectations / déplacements d'un matériel (traçabilité)
+model Mouvement {
+  id          Int      @id @default(autoincrement())
+  materielId  Int
+  deSalle     String? // libellé figé au moment du mouvement
+  versSalle   String?
+  dePoste     String?
+  versPoste   String?
+  motif       String?
+  auteurId    Int
+  date        DateTime @default(now())
+
+  materiel Materiel    @relation(fields: [materielId], references: [id], onDelete: Cascade)
+  auteur   Utilisateur @relation(fields: [auteurId], references: [id], onDelete: Restrict)
+
+  @@index([materielId])
+  @@map("mouvements")
+}
+
+// ─────────────────────────────── Administration des postes ───────────────────────────────
+
+/// Catalogue des applications métier
+model Application {
+  id      Int     @id @default(autoincrement())
+  nom     String  @unique
+  editeur String?
+  metier  Boolean @default(true)
+
+  postes PosteApplication[]
+
+  @@map("applications")
+}
+
+model PosteApplication {
+  posteId       Int
+  applicationId Int
+  version       String?
+  detecteLe     DateTime @default(now())
+
+  poste       Poste       @relation(fields: [posteId], references: [id], onDelete: Cascade)
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@id([posteId, applicationId])
+  @@map("postes_applications")
+}
+
+enum StatutReinstallation {
+  DEMANDEE
+  EN_COURS
+  TERMINEE
+  ECHEC
+  ANNULEE
+}
+
+/// Demande de réinstallation (« replaquage ») d'un poste. Le replaquage d'une salle
+/// crée une demande par poste, regroupées par le même `lot`.
+model Reinstallation {
+  id          Int                  @id @default(autoincrement())
+  posteId     Int
+  image       String               @default("Master standard")
+  lot         String?
+  statut      StatutReinstallation @default(DEMANDEE)
+  message     String?
+  demandeurId Int
+  createdAt   DateTime             @default(now())
+  debut       DateTime?
+  fin         DateTime?
+
+  poste     Poste       @relation(fields: [posteId], references: [id], onDelete: Cascade)
+  demandeur Utilisateur @relation(fields: [demandeurId], references: [id], onDelete: Restrict)
+  commande  CommandeAgent?
+
+  @@index([posteId])
+  @@index([lot])
+  @@map("reinstallations")
+}
+
+enum TypeRemontee {
+  PANNE_MATERIEL
+  PROBLEME_LOGICIEL
+  RESEAU
+  DEMANDE_LOGICIEL
+  AUTRE
+}
+
+enum Priorite {
+  BASSE
+  NORMALE
+  HAUTE
+}
+
+enum StatutRemontee {
+  OUVERTE
+  EN_COURS
+  RESOLUE
+}
+
+/// Remontée utilisateur (signalement) sur un poste ou une salle
+model Remontee {
+  id            Int            @id @default(autoincrement())
+  type          TypeRemontee
+  priorite      Priorite       @default(NORMALE)
+  titre         String
+  description   String
+  statut        StatutRemontee @default(OUVERTE)
+  salleId       Int
+  posteId       Int?
+  auteurId      Int
+  traitantId    Int?
+  reponse       String?
+  createdAt     DateTime       @default(now())
+  resolueLe     DateTime?
+
+  salle    Salle        @relation(fields: [salleId], references: [id], onDelete: Cascade)
+  poste    Poste?       @relation(fields: [posteId], references: [id], onDelete: SetNull)
+  auteur   Utilisateur  @relation("RemonteeAuteur", fields: [auteurId], references: [id], onDelete: Restrict)
+  traitant Utilisateur? @relation("RemonteeTraitant", fields: [traitantId], references: [id], onDelete: SetNull)
+
+  @@index([statut])
+  @@map("remontees")
+}
+
+// ─────────────────────────────── Supervision ───────────────────────────────
+
+enum TypeRegle {
+  AUTORISE
+  INTERDIT
+}
+
+/// Règle sur un processus. salleId null = règle globale.
+model RegleProcessus {
+  id        Int       @id @default(autoincrement())
+  nom       String // nom de l'exécutable, ex : "steam.exe" (comparaison insensible à la casse)
+  type      TypeRegle
+  salleId   Int?
+  motif     String?
+  createdAt DateTime  @default(now())
+
+  salle Salle? @relation(fields: [salleId], references: [id], onDelete: Cascade)
+
+  @@unique([nom, salleId])
+  @@map("regles_processus")
+}
+
+/// Photo des processus en cours sur un poste (remplacée à chaque heartbeat)
+model ProcessusActif {
+  id          Int      @id @default(autoincrement())
+  posteId     Int
+  pid         Int
+  nom         String
+  utilisateur String?
+  cpu         Float    @default(0)
+  memoireMo   Float    @default(0)
+  vuLe        DateTime @default(now())
+
+  poste Poste @relation(fields: [posteId], references: [id], onDelete: Cascade)
+
+  @@index([posteId])
+  @@map("processus_actifs")
+}
+
+/// Échantillon d'utilisation (un par heartbeat) — base des statistiques
+model EchantillonUsage {
+  id          Int      @id @default(autoincrement())
+  posteId     Int
+  horodatage  DateTime @default(now())
+  cpu         Float
+  ram         Float
+  sessionOuverte Boolean @default(false)
+  /// Durée représentée par l'échantillon (écart avec le précédent heartbeat)
+  dureeSecondes  Int     @default(10)
+
+  poste Poste @relation(fields: [posteId], references: [id], onDelete: Cascade)
+
+  @@index([posteId, horodatage])
+  @@map("echantillons_usage")
+}
+
+/// Temps d'exécution cumulé d'un processus par poste et par jour
+model StatProcessus {
+  posteId  Int
+  jour     DateTime @db.Date
+  nom      String
+  secondes Int      @default(0)
+
+  poste Poste @relation(fields: [posteId], references: [id], onDelete: Cascade)
+
+  @@id([posteId, jour, nom])
+  @@index([jour])
+  @@map("stats_processus")
+}
+
+enum TypeCommande {
+  TUER_PROCESSUS
+  REINSTALLER
+}
+
+enum StatutCommande {
+  EN_ATTENTE
+  ENVOYEE
+  EXECUTEE
+  ECHEC
+}
+
+/// Ordre transmis à l'agent d'un poste lors de son prochain heartbeat
+model CommandeAgent {
+  id               Int            @id @default(autoincrement())
+  posteId          Int
+  type             TypeCommande
+  /// TUER_PROCESSUS : { pid, nom } — REINSTALLER : { image }
+  parametres       Json
+  statut           StatutCommande @default(EN_ATTENTE)
+  resultat         String?
+  auteurId         Int?
+  reinstallationId Int?           @unique
+  createdAt        DateTime       @default(now())
+  envoyeeLe        DateTime?
+  termineeLe       DateTime?
+
+  poste          Poste           @relation(fields: [posteId], references: [id], onDelete: Cascade)
+  auteur         Utilisateur?    @relation(fields: [auteurId], references: [id], onDelete: SetNull)
+  reinstallation Reinstallation? @relation(fields: [reinstallationId], references: [id], onDelete: SetNull)
+
+  @@index([posteId, statut])
+  @@map("commandes_agent")
+}
+
+enum TypeAlerte {
+  PROCESSUS_INTERDIT
+  POSTE_HORS_LIGNE
+  CPU_ELEVE
+  APTITUDE_EXPIREE
+}
+
+enum NiveauAlerte {
+  INFO
+  AVERTISSEMENT
+  CRITIQUE
+}
+
+model Alerte {
+  id           Int          @id @default(autoincrement())
+  type         TypeAlerte
+  niveau       NiveauAlerte @default(AVERTISSEMENT)
+  message      String
+  salleId      Int?
+  posteId      Int?
+  materielId   Int?
+  acquittee    Boolean      @default(false)
+  acquitteeParId Int?
+  acquitteeLe  DateTime?
+  createdAt    DateTime     @default(now())
+
+  salle         Salle?       @relation(fields: [salleId], references: [id], onDelete: Cascade)
+  poste         Poste?       @relation(fields: [posteId], references: [id], onDelete: Cascade)
+  materiel      Materiel?    @relation(fields: [materielId], references: [id], onDelete: Cascade)
+  acquitteePar  Utilisateur? @relation(fields: [acquitteeParId], references: [id], onDelete: SetNull)
+
+  @@index([acquittee, createdAt])
+  @@map("alertes")
+}
