@@ -1,4 +1,4 @@
-// ParcForm — modèle de données
+// ASTER — modèle de données
 // Gestion du parc informatique et des salles de formation (DHRAT/PFORM)
 
 generator client {

@@ -98,7 +98,7 @@ function deconnecter() {
             <path d="M5 9h15l6 7-6 7H5z" fill="currentColor" />
             <circle cx="20" cy="16" r="2.2" fill="var(--encre)" />
           </svg>
-          ParcForm
+          ASTER
         </RouterLink>
         <button class="btn btn-discret bascule" :aria-expanded="menuOuvert" aria-controls="navigation" @click="menuOuvert = !menuOuvert">
           Menu

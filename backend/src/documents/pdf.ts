@@ -17,7 +17,7 @@ export function creerDocument(titre: string, sousTitre: string): DocPdf {
   const doc = new PDFDocument({
     size: 'A4',
     margins: { top: MARGE, bottom: MARGE + 10, left: MARGE, right: MARGE },
-    info: { Title: titre, Author: 'ParcForm', Creator: 'ParcForm' },
+    info: { Title: titre, Author: 'ASTER', Creator: 'ASTER' },
     bufferPages: true,
   });
   doc.fillColor(COULEUR_TEXTE);

@@ -1,4 +1,6 @@
-# ParcForm
+# ASTER
+
+**A**dministration, **S**upervision, **T**raçabilité des **É**quipements et **R**essources.
 
 Application web de **gestion du parc informatique et des salles de formation** pour les écoles de la DHRAT/PFORM.
 Elle remplace le fichier Excel utilisé aujourd'hui : on sait à tout moment où se trouve chaque matériel, on enregistre
@@ -50,10 +52,10 @@ nécessaire : le secret JWT est généré automatiquement et conservé dans un v
 
 | Compte | Rôle | Mot de passe |
 |---|---|---|
-| `admin@parcform.local` | Administrateur | `ParcForm#2026` |
-| `gestionnaire@parcform.local` | Gestionnaire de matériel | `ParcForm#2026` |
-| `adminsalle@parcform.local` | Administrateur de salle | `ParcForm#2026` |
-| `formateur@parcform.local` | Formateur | `ParcForm#2026` |
+| `admin@aster.local` | Administrateur | `AsterDemo#2026` |
+| `gestionnaire@aster.local` | Gestionnaire de matériel | `AsterDemo#2026` |
+| `adminsalle@aster.local` | Administrateur de salle | `AsterDemo#2026` |
+| `formateur@aster.local` | Formateur | `AsterDemo#2026` |
 
 > Pour un vrai déploiement : copier `.env.example` en `.env`, changer `POSTGRES_PASSWORD`, mettre `SEED_DEMO=false`
 > et retirer le service `agent` de `docker-compose.yml`.
@@ -62,8 +64,8 @@ nécessaire : le secret JWT est généré automatiquement et conservé dans un v
 
 Le dépôt contient deux configurations de lancement (dossier `.run/`), visibles dans la liste en haut à droite :
 
-- **ParcForm - démo (Docker)** : l'application complète, comme ci-dessus ;
-- **ParcForm - développement (Docker)** : l'environnement de développement ci-dessous.
+- **ASTER - démo (Docker)** : l'application complète, comme ci-dessus ;
+- **ASTER - développement (Docker)** : l'environnement de développement ci-dessous.
 
 Les conteneurs et leurs journaux apparaissent dans la fenêtre *Services* (Alt+8). Si les configurations
 n'apparaissent pas : clic droit sur `docker-compose.yml` → *Run*.
@@ -80,7 +82,7 @@ minutes).
 
 - Interface : <http://localhost:5173>
 - API et Swagger : <http://localhost:3000/api/docs>
-- Base PostgreSQL : `localhost:5432`, utilisateur et mot de passe `parcform` (onglet *Database* d'IntelliJ)
+- Base PostgreSQL : `localhost:5432`, utilisateur et mot de passe `aster` (onglet *Database* d'IntelliJ)
 
 ## Tests (dans Docker)
 
@@ -88,7 +90,7 @@ Avec l'environnement de développement démarré :
 
 ```bash
 docker compose -f docker-compose.dev.yml exec backend npm test              # tests unitaires de l'API (Jest)
-docker compose -f docker-compose.dev.yml exec backend sh ./docker-test-e2e.sh  # bout en bout, base parcform_test dédiée
+docker compose -f docker-compose.dev.yml exec backend sh ./docker-test-e2e.sh  # bout en bout, base aster_test dédiée
 docker compose -f docker-compose.dev.yml exec frontend npm test             # tests de l'interface (Vitest)
 ```
 

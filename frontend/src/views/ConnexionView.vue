@@ -14,10 +14,10 @@ const enCours = ref(false);
 
 const comptesDemo = import.meta.env.VITE_COMPTES_DEMO === 'true';
 const demo = [
-  { email: 'admin@parcform.local', role: 'Administrateur' },
-  { email: 'gestionnaire@parcform.local', role: 'Gestionnaire de matériel' },
-  { email: 'adminsalle@parcform.local', role: 'Administrateur de salle' },
-  { email: 'formateur@parcform.local', role: 'Formateur' },
+  { email: 'admin@aster.local', role: 'Administrateur' },
+  { email: 'gestionnaire@aster.local', role: 'Gestionnaire de matériel' },
+  { email: 'adminsalle@aster.local', role: 'Administrateur de salle' },
+  { email: 'formateur@aster.local', role: 'Formateur' },
 ];
 
 async function connecter() {
@@ -43,8 +43,11 @@ async function connecter() {
           <path d="M5 9h15l6 7-6 7H5z" fill="currentColor" />
           <circle cx="20" cy="16" r="2.2" fill="var(--encre)" />
         </svg>
-        ParcForm
+        ASTER
       </div>
+      <p class="acronyme">
+        <b>A</b>dministration, <b>S</b>upervision, <b>T</b>raçabilité des <b>É</b>quipements et <b>R</b>essources
+      </p>
       <h1>Le parc informatique de l'école, salle par salle, poste par poste.</h1>
       <p>Inventaire du matériel reçu du CND, administration et supervision des postes de formation.</p>
       <div class="etiquettes" aria-hidden="true">
@@ -72,7 +75,7 @@ async function connecter() {
 
         <details v-if="comptesDemo" class="demo">
           <summary>Comptes de démonstration</summary>
-          <p class="petit discret">Mot de passe commun : <strong>ParcForm#2026</strong></p>
+          <p class="petit discret">Mot de passe commun : <strong>AsterDemo#2026</strong></p>
           <ul>
             <li v-for="c in demo" :key="c.email">
               <button type="button" class="btn btn-discret btn-petit" @click="email = c.email">{{ c.email }}</button>
@@ -108,6 +111,16 @@ async function connecter() {
   font-size: 1.6rem;
   font-weight: 800;
   font-variation-settings: 'wdth' 70;
+}
+.acronyme {
+  margin: -0.6rem 0 0;
+  color: #b8c3bc;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+.acronyme b {
+  color: var(--signal);
+  font-weight: 700;
 }
 .logo svg {
   width: 38px;

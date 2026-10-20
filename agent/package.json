@@ -1,8 +1,8 @@
 {
-  "name": "parcform-agent-simule",
+  "name": "aster-agent-simule",
   "version": "1.0.0",
   "private": true,
-  "description": "Agent simulé : remonte l'état de postes fictifs à l'API ParcForm",
+  "description": "Agent simulé : remonte l'état de postes fictifs à l'API ASTER",
   "main": "dist/simulateur.js",
   "scripts": {
     "build": "tsc",

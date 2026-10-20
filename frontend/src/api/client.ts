@@ -4,7 +4,7 @@
  */
 
 const BASE = '/api';
-const CLE_JETON = 'parcform.jeton';
+const CLE_JETON = 'aster.jeton';
 
 export class ErreurApi extends Error {
   constructor(

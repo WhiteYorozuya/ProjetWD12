@@ -1,28 +1,28 @@
-# ParcForm — l'application complète, sans rien installer d'autre que Docker
+# ASTER — l'application complète, sans rien installer d'autre que Docker
 #
 #   docker compose up -d --build
 #
 # Application : http://localhost:8080 — Documentation API : http://localhost:8080/api/docs
-# Comptes de démonstration : admin@ / gestionnaire@ / adminsalle@ / formateur@parcform.local, mot de passe ParcForm#2026
+# Comptes de démonstration : admin@ / gestionnaire@ / adminsalle@ / formateur@aster.local, mot de passe AsterDemo#2026
 #
 # Aucun fichier .env n'est nécessaire pour la démonstration. Pour un vrai déploiement,
 # copier .env.example en .env et changer POSTGRES_PASSWORD, mettre SEED_DEMO=false
 # et retirer le service « agent » (agent simulé).
 
-name: parcform
+name: aster
 
 services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: parcform
-      POSTGRES_USER: parcform
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-parcform}
+      POSTGRES_DB: aster
+      POSTGRES_USER: aster
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aster}
     volumes:
       - donnees-postgres:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U parcform -d parcform']
+      test: ['CMD-SHELL', 'pg_isready -U aster -d aster']
       interval: 5s
       timeout: 3s
       retries: 10
@@ -36,12 +36,12 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://parcform:${POSTGRES_PASSWORD:-parcform}@db:5432/parcform?schema=public
+      DATABASE_URL: postgresql://aster:${POSTGRES_PASSWORD:-aster}@db:5432/aster?schema=public
       # Vide = un secret aléatoire est généré au premier démarrage et conservé dans le volume « secrets-api »
       JWT_SECRET: ${JWT_SECRET:-}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
       SEED_DEMO: ${SEED_DEMO:-true}
-      SEED_MOT_DE_PASSE: ${SEED_MOT_DE_PASSE:-ParcForm#2026}
+      SEED_MOT_DE_PASSE: ${SEED_MOT_DE_PASSE:-AsterDemo#2026}
       POSTE_HORS_LIGNE_SECONDES: ${POSTE_HORS_LIGNE_SECONDES:-120}
       CPU_ALERTE_POURCENT: ${CPU_ALERTE_POURCENT:-90}
       TZ: Europe/Paris

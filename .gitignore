@@ -148,7 +148,7 @@ vite.config.ts.timestamp-*
 # Turbo Repo
 .turbo
 
-# ParcForm
+# ASTER
 dist-seed/
 .DS_Store
 .vscode/

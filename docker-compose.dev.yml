@@ -1,4 +1,4 @@
-# ParcForm — environnement de DÉVELOPPEMENT, entièrement dans Docker (Node n'est pas nécessaire sur le poste)
+# ASTER — environnement de DÉVELOPPEMENT, entièrement dans Docker (Node n'est pas nécessaire sur le poste)
 #
 #   docker compose -f docker-compose.dev.yml up
 #
@@ -6,29 +6,29 @@
 # chaque modification est prise en compte à chaud (API redémarrée, page rechargée).
 #
 # Interface : http://localhost:5173 — API et Swagger : http://localhost:3000/api/docs
-# Base PostgreSQL : localhost:5432, utilisateur/mot de passe parcform/parcform (pour l'onglet Database d'IntelliJ)
+# Base PostgreSQL : localhost:5432, utilisateur/mot de passe aster/aster (pour l'onglet Database d'IntelliJ)
 #
 # Tests :
 #   docker compose -f docker-compose.dev.yml exec backend npm test
 #   docker compose -f docker-compose.dev.yml exec backend sh ./docker-test-e2e.sh
 #   docker compose -f docker-compose.dev.yml exec frontend npm test
 
-name: parcform-dev
+name: aster-dev
 
 services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: parcform
-      POSTGRES_USER: parcform
-      POSTGRES_PASSWORD: parcform
+      POSTGRES_DB: aster
+      POSTGRES_USER: aster
+      POSTGRES_PASSWORD: aster
     ports:
       - '5432:5432'
     volumes:
       - dev-postgres:/var/lib/postgresql/data
       - ./docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U parcform -d parcform']
+      test: ['CMD-SHELL', 'pg_isready -U aster -d aster']
       interval: 5s
       timeout: 3s
       retries: 10
@@ -41,7 +41,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://parcform:parcform@db:5432/parcform?schema=public
+      DATABASE_URL: postgresql://aster:aster@db:5432/aster?schema=public
       JWT_SECRET: secret-de-developpement-local-uniquement-jamais-en-production
       PORT: 3000
       CORS_ORIGINS: http://localhost:5173

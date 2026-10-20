@@ -1,4 +1,4 @@
-# Backlog produit — ParcForm
+# Backlog produit — ASTER
 
 Estimation en points (suite de Fibonacci). Priorité MoSCoW : **M**ust, **S**hould, **C**ould.
 Définition de « terminé » (DoD) : code relu par un pair, tests unitaires verts, endpoint documenté dans Swagger, droits vérifiés, démo possible sur l'environnement Docker.

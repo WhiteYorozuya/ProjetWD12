@@ -2,7 +2,7 @@
 
 Mesures mises en œuvre, rapprochées du référentiel OWASP Top 10 (2021).
 
-| Risque OWASP | Mesures dans ParcForm | Où |
+| Risque OWASP | Mesures dans ASTER | Où |
 |---|---|---|
 | **A01 Contrôle d'accès** | Gardes globaux : toute route exige un JWT sauf `@Public()` explicite ; contrôle des rôles par route (`@Roles`) ; compte relu en base à chaque requête (désactivation immédiate) ; un agent ne peut acquitter que ses propres ordres | `common/guards`, `agent/agent.service.ts` |
 | **A02 Défaillances cryptographiques** | Mots de passe hachés bcrypt (coût 12) ; jetons d'agent aléatoires 256 bits, seule l'empreinte SHA‑256 est stockée ; JWT HS256 avec secret ≥ 32 caractères vérifié au démarrage ; algorithme imposé à la vérification | `auth/`, `common/utils/jeton.ts`, `config/configuration.ts` |

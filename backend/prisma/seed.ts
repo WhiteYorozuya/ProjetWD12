@@ -3,7 +3,7 @@
  * Lancement : npm run seed  (la base doit être vide ou réinitialisée : npx prisma migrate reset)
  *
  * Variables :
- *  - SEED_MOT_DE_PASSE : mot de passe des comptes de démo (défaut : ParcForm#2026)
+ *  - SEED_MOT_DE_PASSE : mot de passe des comptes de démo (défaut : AsterDemo#2026)
  *  - SEED_AGENT_DEMO=false : ne pas créer les jetons d'agent de démonstration
  */
 import {
@@ -42,14 +42,14 @@ async function main() {
   }
 
   // ─── Utilisateurs ───
-  const motDePasse = process.env.SEED_MOT_DE_PASSE ?? 'ParcForm#2026';
+  const motDePasse = process.env.SEED_MOT_DE_PASSE ?? 'AsterDemo#2026';
   const hash = await bcrypt.hash(motDePasse, 12);
   const [, gestionnaire, adminSalle, formateur] = await Promise.all(
     [
-      { email: 'admin@parcform.local', nom: 'MARTIN', prenom: 'Claire', role: Role.ADMIN },
-      { email: 'gestionnaire@parcform.local', nom: 'DUBOIS', prenom: 'Julien', role: Role.GESTIONNAIRE },
-      { email: 'adminsalle@parcform.local', nom: 'BERNARD', prenom: 'Sophie', role: Role.ADMIN_SALLE },
-      { email: 'formateur@parcform.local', nom: 'PETIT', prenom: 'Antoine', role: Role.FORMATEUR },
+      { email: 'admin@aster.local', nom: 'MARTIN', prenom: 'Claire', role: Role.ADMIN },
+      { email: 'gestionnaire@aster.local', nom: 'DUBOIS', prenom: 'Julien', role: Role.GESTIONNAIRE },
+      { email: 'adminsalle@aster.local', nom: 'BERNARD', prenom: 'Sophie', role: Role.ADMIN_SALLE },
+      { email: 'formateur@aster.local', nom: 'PETIT', prenom: 'Antoine', role: Role.FORMATEUR },
     ].map((u) => prisma.utilisateur.create({ data: { ...u, passwordHash: hash } })),
   );
 
@@ -304,7 +304,7 @@ async function main() {
 
   console.log(`✔ Seed terminé : ${postes.length} postes, ${materiels.length} matériels, ${echantillons.length} échantillons.`);
   console.log(
-    `  Comptes : admin@ / gestionnaire@ / adminsalle@ / formateur@parcform.local — mot de passe : ${
+    `  Comptes : admin@ / gestionnaire@ / adminsalle@ / formateur@aster.local — mot de passe : ${
       process.env.SEED_MOT_DE_PASSE ? 'valeur de SEED_MOT_DE_PASSE' : motDePasse
     }`,
   );

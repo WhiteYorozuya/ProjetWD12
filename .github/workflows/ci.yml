@@ -13,14 +13,14 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: parcform
-          POSTGRES_PASSWORD: parcform
-          POSTGRES_DB: parcform_test
+          POSTGRES_USER: aster
+          POSTGRES_PASSWORD: aster
+          POSTGRES_DB: aster_test
         ports: ['5432:5432']
         options: >-
-          --health-cmd "pg_isready -U parcform" --health-interval 5s --health-timeout 3s --health-retries 10
+          --health-cmd "pg_isready -U aster" --health-interval 5s --health-timeout 3s --health-retries 10
     env:
-      DATABASE_URL: postgresql://parcform:parcform@localhost:5432/parcform_test?schema=public
+      DATABASE_URL: postgresql://aster:aster@localhost:5432/aster_test?schema=public
       JWT_SECRET: secret-de-ci-suffisamment-long-pour-la-validation
     defaults:
       run:
@@ -39,9 +39,9 @@ jobs:
       - run: npx prisma migrate deploy
       - name: Vérifier que les migrations correspondent au schéma Prisma
         run: |
-          PGPASSWORD=parcform psql -h localhost -U parcform -d parcform_test -c "CREATE DATABASE parcform_shadow"
+          PGPASSWORD=aster psql -h localhost -U aster -d aster_test -c "CREATE DATABASE aster_shadow"
           npx prisma migrate diff --from-migrations prisma/migrations --to-schema-datamodel prisma/schema.prisma \
-            --shadow-database-url postgresql://parcform:parcform@localhost:5432/parcform_shadow --exit-code
+            --shadow-database-url postgresql://aster:aster@localhost:5432/aster_shadow --exit-code
       - run: npm run test:e2e
       - run: npm run build
 
@@ -78,7 +78,7 @@ jobs:
       - name: Connexion avec un compte de démonstration
         run: |
           JETON=$(curl -sf -X POST http://localhost:8080/api/auth/login -H 'Content-Type: application/json' \
-            -d '{"email":"admin@parcform.local","motDePasse":"ParcForm#2026"}' | jq -r .jeton)
+            -d '{"email":"admin@aster.local","motDePasse":"AsterDemo#2026"}' | jq -r .jeton)
           echo "JETON=$JETON" >> "$GITHUB_ENV"
           test -n "$JETON" && test "$JETON" != null
       - name: L'agent simulé fait vivre les postes

@@ -43,9 +43,10 @@ export async function configureApp(app: NestFastifyApplication, options: { swagg
 
   if (options.swagger !== false) {
     const config = new DocumentBuilder()
-      .setTitle('ParcForm API')
+      .setTitle('ASTER API')
       .setDescription(
-        "Gestion du parc informatique et des salles de formation. " +
+        "ASTER — Administration, Supervision, Traçabilité des Équipements et Ressources. " +
+          "Gestion du parc informatique et des salles de formation. " +
           "Authentifiez-vous via POST /api/auth/login puis cliquez sur « Authorize ». " +
           "Les routes /api/agent/* utilisent l'en-tête X-Agent-Token.",
       )

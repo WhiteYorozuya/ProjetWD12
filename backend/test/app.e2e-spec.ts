@@ -1,7 +1,7 @@
 /**
  * Tests de bout en bout sur une vraie base PostgreSQL.
  * ⚠ La base pointée par DATABASE_URL est VIDÉE : utiliser une base dédiée aux tests, ex.
- *   DATABASE_URL=postgresql://parcform:parcform@localhost:5432/parcform_test npm run test:e2e
+ *   DATABASE_URL=postgresql://aster:aster@localhost:5432/aster_test npm run test:e2e
  * (appliquer d'abord le schéma : npx prisma migrate deploy)
  */
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
@@ -14,9 +14,9 @@ import { hacherMotDePasse } from '../src/auth/mot-de-passe';
 import { hacherJeton } from '../src/common/utils/jeton';
 import { PrismaService } from '../src/prisma/prisma.service';
 
-const MDP = 'ParcForm#2026';
+const MDP = 'AsterDemo#2026';
 
-describe('ParcForm API (e2e)', () => {
+describe('ASTER API (e2e)', () => {
   let app: NestFastifyApplication;
   let prisma: PrismaService;
   const jetons: Partial<Record<Role, string>> = {};

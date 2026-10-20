@@ -108,7 +108,7 @@ export class DocumentsService {
     doc.y += 65;
 
     signatures(doc, 'Remis par (gestionnaire / administrateur de salle)', 'Pris en compte par (responsable de stage)');
-    numeroterPages(doc, `ParcForm · État des lieux salle ${salle.code} · ${dateFr(maintenant)}`);
+    numeroterPages(doc, `ASTER · État des lieux salle ${salle.code} · ${dateFr(maintenant)}`);
 
     return {
       nomFichier: `etat-des-lieux-${salle.code}-${maintenant.toISOString().slice(0, 10)}.pdf`,
@@ -160,7 +160,7 @@ export class DocumentsService {
       titreSection(doc, `Sans affectation (${nonAffectes.length})`);
       tableau(doc, colonnes, nonAffectes.map(versLigne));
     }
-    numeroterPages(doc, `ParcForm · Inventaire général · ${dateFr(maintenant)}`);
+    numeroterPages(doc, `ASTER · Inventaire général · ${dateFr(maintenant)}`);
 
     return {
       nomFichier: `inventaire-general-${maintenant.toISOString().slice(0, 10)}.pdf`,

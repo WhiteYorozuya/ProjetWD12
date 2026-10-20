@@ -1,5 +1,5 @@
 /**
- * Agent ParcForm SIMULÉ — pour la démonstration.
+ * Agent ASTER SIMULÉ — pour la démonstration.
  *
  * Simule l'agent qui serait installé sur chaque poste : il envoie toutes les 10 s un heartbeat
  * (CPU, RAM, session, processus, applications) à l'API et exécute les ordres reçus

@@ -1,7 +1,7 @@
 {
-  "name": "parcform-backend",
+  "name": "aster-backend",
   "version": "1.0.0",
-  "description": "API ParcForm — gestion du parc informatique et des salles de formation",
+  "description": "API ASTER — gestion du parc informatique et des salles de formation",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

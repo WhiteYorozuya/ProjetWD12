@@ -49,5 +49,5 @@ router.beforeEach(async (to) => {
 });
 
 router.afterEach((to) => {
-  document.title = to.meta.titre ? `${to.meta.titre} · ParcForm` : 'ParcForm';
+  document.title = to.meta.titre ? `${to.meta.titre} · ASTER` : 'ASTER';
 });
