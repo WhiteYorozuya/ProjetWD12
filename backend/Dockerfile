@@ -27,6 +27,8 @@ COPY --from=build --chown=node:node /app/dist ./dist
 COPY --from=build --chown=node:node /app/dist-seed ./dist-seed
 COPY --from=build --chown=node:node /app/prisma ./prisma
 COPY --chown=node:node package.json docker-entrypoint.sh ./
+# Dossier du secret JWT généré (monté en volume, il hérite de ce propriétaire)
+RUN mkdir -p /app/secrets && chown node:node /app/secrets && chmod 700 /app/secrets
 
 # Ne jamais exécuter l'API en root
 USER node

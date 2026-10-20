@@ -12,6 +12,8 @@ export default defineConfig({
     port: 5173,
     // En développement, les appels /api sont relayés vers l'API NestJS
     proxy: { '/api': { target: process.env.API_URL ?? 'http://localhost:3000', changeOrigin: true } },
+    // Dans Docker, les fichiers montés depuis Windows ou macOS ne signalent pas leurs modifications : on sonde
+    watch: process.env.VITE_POLLING === 'true' ? { usePolling: true, interval: 300 } : undefined,
   },
   test: {
     environment: 'jsdom',

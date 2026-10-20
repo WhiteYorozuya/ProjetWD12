@@ -1,0 +1,8 @@
+* text=auto
+# Les scripts exécutés dans les conteneurs Linux gardent des fins de ligne LF,
+# même quand le dépôt est cloné sous Windows (sinon : « set: illegal option »).
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.conf text eol=lf
+*.sql text eol=lf
+*.png binary

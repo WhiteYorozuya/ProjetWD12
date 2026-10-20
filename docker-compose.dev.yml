@@ -1,0 +1,88 @@
+# ParcForm — environnement de DÉVELOPPEMENT, entièrement dans Docker (Node n'est pas nécessaire sur le poste)
+#
+#   docker compose -f docker-compose.dev.yml up
+#
+# Le code des dossiers backend/, frontend/ et agent/ est monté dans les conteneurs :
+# chaque modification est prise en compte à chaud (API redémarrée, page rechargée).
+#
+# Interface : http://localhost:5173 — API et Swagger : http://localhost:3000/api/docs
+# Base PostgreSQL : localhost:5432, utilisateur/mot de passe parcform/parcform (pour l'onglet Database d'IntelliJ)
+#
+# Tests :
+#   docker compose -f docker-compose.dev.yml exec backend npm test
+#   docker compose -f docker-compose.dev.yml exec backend sh ./docker-test-e2e.sh
+#   docker compose -f docker-compose.dev.yml exec frontend npm test
+
+name: parcform-dev
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: parcform
+      POSTGRES_USER: parcform
+      POSTGRES_PASSWORD: parcform
+    ports:
+      - '5432:5432'
+    volumes:
+      - dev-postgres:/var/lib/postgresql/data
+      - ./docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U parcform -d parcform']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh ./docker-dev.sh
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://parcform:parcform@db:5432/parcform?schema=public
+      JWT_SECRET: secret-de-developpement-local-uniquement-jamais-en-production
+      PORT: 3000
+      CORS_ORIGINS: http://localhost:5173
+      # Détection des modifications par sondage : fiable sur les dossiers montés depuis Windows et macOS
+      TSC_WATCHFILE: DynamicPriorityPolling
+      TSC_WATCHDIRECTORY: DynamicPriorityPolling
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./backend:/app
+      - dev-backend-modules:/app/node_modules
+
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    depends_on: [backend]
+    environment:
+      API_URL: http://backend:3000
+      VITE_COMPTES_DEMO: 'true'
+      VITE_POLLING: 'true'
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./frontend:/app
+      - dev-frontend-modules:/app/node_modules
+
+  agent:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    depends_on: [backend]
+    environment:
+      API_URL: http://backend:3000/api
+      PROBA_INTERDIT: 0.01
+    volumes:
+      - ./agent:/app
+      - dev-agent-modules:/app/node_modules
+
+volumes:
+  dev-postgres:
+  dev-backend-modules:
+  dev-frontend-modules:
+  dev-agent-modules:

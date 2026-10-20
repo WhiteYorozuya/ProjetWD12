@@ -61,3 +61,59 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+
+  docker:
+    name: Lancement Docker (démo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construire et démarrer, sans fichier .env
+        run: docker compose up -d --build
+      - name: Attendre l'API derrière Nginx
+        run: |
+          for i in $(seq 1 60); do curl -sf http://localhost:8080/api/sante && exit 0; sleep 5; done
+          exit 1
+      - name: L'interface est servie
+        run: curl -sf http://localhost:8080/ | grep -q '<div id="app">'
+      - name: Connexion avec un compte de démonstration
+        run: |
+          JETON=$(curl -sf -X POST http://localhost:8080/api/auth/login -H 'Content-Type: application/json' \
+            -d '{"email":"admin@parcform.local","motDePasse":"ParcForm#2026"}' | jq -r .jeton)
+          echo "JETON=$JETON" >> "$GITHUB_ENV"
+          test -n "$JETON" && test "$JETON" != null
+      - name: L'agent simulé fait vivre les postes
+        run: |
+          for i in $(seq 1 12); do
+            EN_LIGNE=$(curl -sf http://localhost:8080/api/tableau-de-bord -H "Authorization: Bearer $JETON" | jq .postes.enLigne)
+            echo "Postes en ligne : $EN_LIGNE"; [ "$EN_LIGNE" -gt 0 ] && exit 0; sleep 5
+          done
+          exit 1
+      - name: Le secret JWT généré survit à un redémarrage
+        run: |
+          docker compose restart backend
+          for i in $(seq 1 30); do curl -sf http://localhost:8080/api/sante && break; sleep 3; done
+          curl -sf http://localhost:8080/api/auth/moi -H "Authorization: Bearer $JETON"
+      - name: Journaux en cas d'échec
+        if: failure()
+        run: docker compose logs --tail 200
+
+  docker-dev:
+    name: Environnement de développement Docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Démarrer
+        run: docker compose -f docker-compose.dev.yml up -d
+      - name: Attendre l'API et l'interface
+        run: |
+          for i in $(seq 1 90); do curl -sf http://localhost:3000/api/sante && curl -sf http://localhost:5173/ >/dev/null && exit 0; sleep 5; done
+          exit 1
+      - name: Tests de l'API dans le conteneur
+        run: docker compose -f docker-compose.dev.yml exec -T backend npm test
+      - name: Tests de bout en bout dans le conteneur
+        run: docker compose -f docker-compose.dev.yml exec -T backend sh ./docker-test-e2e.sh
+      - name: Tests de l'interface dans le conteneur
+        run: docker compose -f docker-compose.dev.yml exec -T frontend npm test
+      - name: Journaux en cas d'échec
+        if: failure()
+        run: docker compose -f docker-compose.dev.yml logs --tail 200

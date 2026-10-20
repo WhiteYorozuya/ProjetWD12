@@ -32,23 +32,21 @@ flowchart LR
   A[Agents des postes<br/>simulés en démo] -->|heartbeat 10 s<br/>X-Agent-Token| B
 ```
 
-## Démarrage rapide (Docker)
+## Démarrage rapide — seul Docker est nécessaire
 
-Prérequis : Docker et Docker Compose.
+Prérequis : **Docker Desktop** (rien d'autre : ni Node, ni PostgreSQL).
 
 ```bash
-cp .env.example .env
-# Dans .env : choisir POSTGRES_PASSWORD et générer JWT_SECRET :
-node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"
-
-docker compose --profile demo up -d --build
+docker compose up -d --build
 ```
 
 - Application : <http://localhost:8080>
 - Documentation de l'API : <http://localhost:8080/api/docs>
+- Arrêter : `docker compose down` (ajouter `-v` pour repartir d'une base vide)
 
-Avec `SEED_DEMO=true`, la base est remplie au premier démarrage (3 salles + magasin, 24 postes, ~90 matériels, 7 jours
-d'historique) et le profil `demo` lance l'**agent simulé** qui fait vivre les postes.
+Au premier démarrage, la base est remplie avec des données de démonstration (3 salles + magasin, 24 postes,
+~90 matériels, 7 jours d'historique) et l'**agent simulé** fait vivre les postes. Aucun fichier `.env` n'est
+nécessaire : le secret JWT est généré automatiquement et conservé dans un volume Docker.
 
 | Compte | Rôle | Mot de passe |
 |---|---|---|
@@ -57,39 +55,44 @@ d'historique) et le profil `demo` lance l'**agent simulé** qui fait vivre les p
 | `adminsalle@parcform.local` | Administrateur de salle | `ParcForm#2026` |
 | `formateur@parcform.local` | Formateur | `ParcForm#2026` |
 
-> Ces comptes n'existent que si `SEED_DEMO=true`. Changez les mots de passe (menu *Mon compte*) hors démonstration.
+> Pour un vrai déploiement : copier `.env.example` en `.env`, changer `POSTGRES_PASSWORD`, mettre `SEED_DEMO=false`
+> et retirer le service `agent` de `docker-compose.yml`.
 
-## Développement local
+### Depuis IntelliJ
 
-Prérequis : Node.js 22, PostgreSQL 16 (ou `docker compose up db`).
+Le dépôt contient deux configurations de lancement (dossier `.run/`), visibles dans la liste en haut à droite :
 
-```bash
-# API
-cd backend
-cp .env.example .env              # renseigner DATABASE_URL et JWT_SECRET
-npm install
-npx prisma migrate dev            # crée le schéma
-npm run seed                      # données de démonstration
-npm run start:dev                 # http://localhost:3000/api/docs
+- **ParcForm - démo (Docker)** : l'application complète, comme ci-dessus ;
+- **ParcForm - développement (Docker)** : l'environnement de développement ci-dessous.
 
-# Interface (autre terminal)
-cd frontend
-npm install
-VITE_COMPTES_DEMO=true npm run dev  # http://localhost:5173 (relaie /api vers :3000)
+Les conteneurs et leurs journaux apparaissent dans la fenêtre *Services* (Alt+8). Si les configurations
+n'apparaissent pas : clic droit sur `docker-compose.yml` → *Run*.
 
-# Agent simulé (autre terminal)
-cd agent
-npm install
-npm start
-```
-
-## Tests
+## Développer sans installer Node
 
 ```bash
-cd backend && npm test                       # tests unitaires (Jest)
-cd backend && npm run test:e2e               # tests de bout en bout — ⚠ base DÉDIÉE, elle est vidée
-cd frontend && npm test                      # tests Vitest
+docker compose -f docker-compose.dev.yml up
 ```
+
+Les dossiers `backend/`, `frontend/` et `agent/` sont montés dans des conteneurs Node : chaque modification du code est
+prise en compte à chaud (l'API redémarre, la page se recharge). Le premier démarrage installe les dépendances (quelques
+minutes).
+
+- Interface : <http://localhost:5173>
+- API et Swagger : <http://localhost:3000/api/docs>
+- Base PostgreSQL : `localhost:5432`, utilisateur et mot de passe `parcform` (onglet *Database* d'IntelliJ)
+
+## Tests (dans Docker)
+
+Avec l'environnement de développement démarré :
+
+```bash
+docker compose -f docker-compose.dev.yml exec backend npm test              # tests unitaires de l'API (Jest)
+docker compose -f docker-compose.dev.yml exec backend sh ./docker-test-e2e.sh  # bout en bout, base parcform_test dédiée
+docker compose -f docker-compose.dev.yml exec frontend npm test             # tests de l'interface (Vitest)
+```
+
+Les mêmes tests, plus le lancement Docker complet, tournent dans GitHub Actions à chaque push.
 
 Les tests e2e couvrent les parcours clés : authentification et droits, ajout / affectation / import de matériel,
 heartbeat d'agent avec détection d'un processus interdit et arrêt automatique, replaquage d'une salle suivi jusqu'à la
@@ -107,6 +110,8 @@ fin, remontée traitée par l'administrateur de salle, tableau de bord et géné
 8. *Documents* → état des lieux PDF de la salle 201 et inventaire général.
 9. *Tableau de bord* et *Statistiques* : indicateurs, logiciels les plus utilisés, utilisation des salles.
 10. `http://localhost:8080/api/docs` : contrat d'API pour les techniciens.
+
+Avant la soutenance : `docker compose up -d --build` sur le poste de démonstration, puis ouvrir un onglet par compte.
 
 ## Organisation du dépôt
 
