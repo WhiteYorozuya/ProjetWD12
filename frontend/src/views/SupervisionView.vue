@@ -155,6 +155,7 @@ async function supprimerRegle(id: number) {
               <span class="session">{{ p.utilisateurConnecte ?? 'Aucune session' }}</span>
               <JaugeUsage libelle="CPU" :valeur="p.cpu" />
               <JaugeUsage libelle="RAM" :valeur="p.ram" />
+              <span v-if="p.alertes.length" class="a-traiter">{{ p.alertes.length }} alerte(s) à acquitter</span>
               <span v-for="pr in p.processus.filter((x) => x.interdit)" :key="pr.pid" class="interdit">
                 {{ pr.nom }} interdit{{ pr.arretDemande ? ' — arrêt en cours' : '' }}
               </span>
@@ -330,6 +331,15 @@ async function supprimerRegle(id: number) {
 }
 .session {
   font-size: 0.88rem;
+}
+.a-traiter {
+  align-self: flex-start;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--attention);
+  background: var(--attention-fond);
 }
 .interdit {
   font-size: 0.84rem;

@@ -37,6 +37,11 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npx prisma migrate deploy
+      - name: Vérifier que les migrations correspondent au schéma Prisma
+        run: |
+          PGPASSWORD=parcform psql -h localhost -U parcform -d parcform_test -c "CREATE DATABASE parcform_shadow"
+          npx prisma migrate diff --from-migrations prisma/migrations --to-schema-datamodel prisma/schema.prisma \
+            --shadow-database-url postgresql://parcform:parcform@localhost:5432/parcform_shadow --exit-code
       - run: npm run test:e2e
       - run: npm run build
 
