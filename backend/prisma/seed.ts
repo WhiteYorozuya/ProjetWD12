@@ -8,6 +8,7 @@
  */
 import {
   EtatMateriel,
+  Poste,
   Priorite,
   PrismaClient,
   Role,
@@ -16,10 +17,11 @@ import {
   TypeRemontee,
   TypeSalle,
 } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 import * as bcrypt from 'bcryptjs';
 import { createHash } from 'node:crypto';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 const hacher = (jeton: string) => createHash('sha256').update(jeton, 'utf8').digest('hex');
 
 /** Jeton déterministe utilisé par l'agent simulé (UNIQUEMENT pour la démo). */
@@ -114,7 +116,7 @@ async function main() {
 
   // ─── Postes ───
   const agentDemo = process.env.SEED_AGENT_DEMO !== 'false';
-  const postes = [];
+  const postes: Poste[] = [];
   const plan: [typeof s201, number, string][] = [
     [s201, 8, '10.20.1.'],
     [s119, 10, '10.20.2.'],
@@ -248,9 +250,9 @@ async function main() {
 
   // ─── Historique d'utilisation (7 derniers jours) pour les statistiques ───
   const processusParSalle: Record<number, string[]> = {
-    [s201.id]: ['firefox.exe', 'gns3.exe', 'putty.exe', 'wireshark.exe', 'soffice.exe', 'explorer.exe'],
-    [s119.id]: ['firefox.exe', 'soffice.exe', 'thunderbird.exe', 'moodle.exe', 'explorer.exe'],
-    [s105.id]: ['firefox.exe', 'wireshark.exe', 'virtualbox.exe', 'code.exe', 'putty.exe', 'explorer.exe'],
+    [s201.id]: ['firefox.exe', 'gns3.exe', 'putty.exe', 'wireshark.exe', 'soffice.exe'],
+    [s119.id]: ['firefox.exe', 'soffice.exe', 'thunderbird.exe', 'moodle.exe'],
+    [s105.id]: ['firefox.exe', 'wireshark.exe', 'virtualbox.exe', 'code.exe', 'putty.exe'],
   };
   const PAS = 15 * 60; // un échantillon de synthèse toutes les 15 min
   const echantillons: { posteId: number; horodatage: Date; cpu: number; ram: number; sessionOuverte: boolean; dureeSecondes: number }[] = [];

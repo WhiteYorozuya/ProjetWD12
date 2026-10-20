@@ -11,6 +11,7 @@ import { AlertesService } from '../alertes/alertes.service';
 import { PosteAgent } from '../common/types';
 import { parametres } from '../config/configuration';
 import { PrismaService } from '../prisma/prisma.service';
+import { estProcessusSysteme } from '../supervision/regles';
 import { SupervisionService } from '../supervision/supervision.service';
 import { ApplicationRemonteeDto, HeartbeatDto, ResultatCommandeDto } from './agent.dto';
 
@@ -43,7 +44,10 @@ export class AgentService {
       select: { derniereConnexion: true },
     });
     const secondes = dureeImputable(precedent.derniereConnexion, maintenant);
-    const nomsProcessus = [...new Set(dto.processus.map((p) => p.nom.toLowerCase()))];
+    // Les statistiques d'usage ne portent que sur les logiciels lancés par les utilisateurs
+    const nomsProcessus = [
+      ...new Set(dto.processus.filter((p) => !estProcessusSysteme(p.utilisateur)).map((p) => p.nom.toLowerCase())),
+    ];
     const jour = maintenant.toISOString().slice(0, 10);
 
     await this.prisma.$transaction(async (tx) => {

@@ -55,6 +55,7 @@ export function tableau(doc: DocPdf, colonnes: Colonne[], lignes: string[][]) {
     if (doc.y + h > doc.page.height - doc.page.margins.bottom) {
       doc.addPage();
       if (!entete) dessinerLigne(colonnes.map((c) => c.titre), true);
+      doc.font(entete ? 'Helvetica-Bold' : 'Helvetica').fontSize(8.5); // l'en-tête répété a changé la police
     }
     const y = doc.y;
     if (entete) doc.rect(MARGE, y, largeurTotale, h).fill(COULEUR_ENTETE);

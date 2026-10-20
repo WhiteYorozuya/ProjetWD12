@@ -1,5 +1,5 @@
 import { TypeRegle } from '@prisma/client';
-import { calculerInterdits } from './regles';
+import { calculerInterdits, estProcessusSysteme } from './regles';
 
 describe('Règles de processus', () => {
   const regles = [
@@ -19,5 +19,15 @@ describe('Règles de processus', () => {
 
   it("une interdiction de salle s'ajoute aux règles globales", () => {
     expect([...calculerInterdits(regles, 3)].sort()).toEqual(['nmap.exe', 'steam.exe', 'wireshark.exe']);
+  });
+});
+
+describe('Processus système', () => {
+  it('reconnaît les comptes système Windows et Linux', () => {
+    expect(estProcessusSysteme('SYSTEM')).toBe(true);
+    expect(estProcessusSysteme('NT AUTHORITY\\LOCAL SERVICE')).toBe(true);
+    expect(estProcessusSysteme('root')).toBe(true);
+    expect(estProcessusSysteme('stagiaire01')).toBe(false);
+    expect(estProcessusSysteme(null)).toBe(false);
   });
 });

@@ -44,7 +44,7 @@ const POSTES_DEMO = [
   ...Array.from({ length: 6 }, (_, i) => `S105-P${String(i + 1).padStart(2, '0')}`),
 ];
 
-const SYSTEME = ['System', 'svchost.exe', 'explorer.exe', 'lsass.exe', 'csrss.exe', 'MsMpEng.exe'];
+const SYSTEME = ['System', 'svchost.exe', 'lsass.exe', 'csrss.exe', 'MsMpEng.exe'];
 const LOGICIELS: Record<string, string[]> = {
   '201': ['firefox.exe', 'gns3.exe', 'putty.exe', 'wireshark.exe', 'soffice.exe'],
   '119': ['firefox.exe', 'soffice.exe', 'thunderbird.exe', 'moodle.exe'],
@@ -108,6 +108,7 @@ export class PosteSimule {
     // Un poste sur six reste sans session (stagiaire absent)
     this.utilisateur = this.numero % 6 === 5 ? null : `stagiaire${String(this.numero).padStart(2, '0')}`;
     if (this.utilisateur) {
+      this.lancer('explorer.exe', this.utilisateur);
       (LOGICIELS[this.salle] ?? LOGICIELS['119'])
         .filter(() => Math.random() < 0.6)
         .forEach((nom) => this.lancer(nom, this.utilisateur!));

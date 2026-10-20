@@ -14,8 +14,6 @@ import { hacherMotDePasse } from '../src/auth/mot-de-passe';
 import { hacherJeton } from '../src/common/utils/jeton';
 import { PrismaService } from '../src/prisma/prisma.service';
 
-process.env.JWT_SECRET ??= 'secret-de-test-suffisamment-long-pour-la-validation';
-
 const MDP = 'ParcForm#2026';
 
 describe('ParcForm API (e2e)', () => {
@@ -37,7 +35,7 @@ describe('ParcForm API (e2e)', () => {
 
     // Base propre
     const tables = await prisma.$queryRaw<{ tablename: string }[]>`
-      SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename <> '_prisma_migrations'`;
+      SELECT tablename::text AS tablename FROM pg_tables WHERE schemaname = 'public' AND tablename <> '_prisma_migrations'`;
     await prisma.$executeRawUnsafe(`TRUNCATE ${tables.map((t) => `"${t.tablename}"`).join(', ')} RESTART IDENTITY CASCADE`);
 
     const hash = await hacherMotDePasse(MDP);
@@ -65,7 +63,7 @@ describe('ParcForm API (e2e)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    await app?.close();
   });
 
   describe('Authentification et droits', () => {

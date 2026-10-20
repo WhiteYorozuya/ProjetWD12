@@ -54,12 +54,12 @@ export class DocumentsService {
     tableau(
       doc,
       [
-        { titre: 'Poste', largeur: 70 },
-        { titre: 'Type', largeur: 60 },
+        { titre: 'Poste', largeur: 65 },
+        { titre: 'Type', largeur: 80 },
         { titre: 'N° de série', largeur: 85 },
         { titre: 'Marque / modèle', largeur: 110 },
         { titre: 'État', largeur: 60 },
-        { titre: 'Constat (OK / remarque)', largeur: 130 },
+        { titre: 'Constat (OK / remarque)', largeur: 115 },
       ],
       salle.materiels.map((m) => [
         m.poste?.hostname ?? '—',
@@ -133,9 +133,9 @@ export class DocumentsService {
     );
 
     const colonnes = [
-      { titre: 'Type', largeur: 65 },
-      { titre: 'N° de série', largeur: 95 },
-      { titre: 'Marque / modèle', largeur: 140 },
+      { titre: 'Type', largeur: 80 },
+      { titre: 'N° de série', largeur: 90 },
+      { titre: 'Marque / modèle', largeur: 130 },
       { titre: 'État', largeur: 70 },
       { titre: 'Réception', largeur: 60 },
       { titre: 'Aptitude', largeur: 85 },

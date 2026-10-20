@@ -19,3 +19,9 @@ export function calculerInterdits(regles: Pick<RegleProcessus, 'nom' | 'type' | 
   }
   return interdits;
 }
+
+/** Processus lancés par le système (SYSTEM, NT AUTHORITY\…, root) : protégés et exclus des statistiques. */
+export function estProcessusSysteme(utilisateur: string | null | undefined): boolean {
+  const u = (utilisateur ?? '').toUpperCase();
+  return u === 'SYSTEM' || u === 'ROOT' || u.startsWith('NT AUTHORITY');
+}

@@ -1,8 +1,8 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable } from '@nestjs/common';
 import { StatutCommande, TypeCommande } from '@prisma/client';
 import { estEnLigne } from '../common/utils/statut-poste';
 import { PrismaService } from '../prisma/prisma.service';
-import { calculerInterdits } from './regles';
+import { calculerInterdits, estProcessusSysteme } from './regles';
 import { CreerRegleDto } from './supervision.dto';
 
 @Injectable()
@@ -97,6 +97,9 @@ export class SupervisionService {
   async tuerProcessus(posteId: number, pid: number, auteurId: number) {
     const processus = await this.prisma.processusActif.findFirst({ where: { posteId, pid } });
     if (!processus) throw new BadRequestException("Ce processus n'est plus actif sur le poste");
+    if (estProcessusSysteme(processus.utilisateur)) {
+      throw new ForbiddenException("Les processus du système d'exploitation ne peuvent pas être arrêtés à distance");
+    }
 
     const dejaDemande = await this.prisma.commandeAgent.findFirst({
       where: {
