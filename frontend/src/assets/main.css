@@ -1,0 +1,374 @@
+/* ParcForm — système visuel
+   Papier gris-vert, encre verte, olive pour la structure, jaune « étiquette d'inventaire » réservé
+   aux identifiants de matériel et à l'action principale. */
+
+:root {
+  --papier: #eef0ec;
+  --surface: #f9faf8;
+  --encre: #1e2a26;
+  --encre-douce: #56625c;
+  --encre-faible: #8a948f;
+  --trait: #d3d8d2;
+  --trait-fort: #b7bfb8;
+  --olive: #4f6142;
+  --olive-clair: #e3e8dc;
+  --signal: #e2b33d;
+  --signal-fonce: #b9891c;
+
+  --ok: #2f7d4f;
+  --ok-fond: #e1efe5;
+  --info: #2e5e8c;
+  --info-fond: #e2eaf3;
+  --attention: #a66510;
+  --attention-fond: #f6ead6;
+  --danger: #b23a2e;
+  --danger-fond: #f6e1de;
+  --neutre: #5f6763;
+  --neutre-fond: #e6e9e6;
+
+  --police: 'Archivo Variable', 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --rayon: 4px;
+  --rayon-grand: 8px;
+  --focus: 0 0 0 3px rgba(226, 179, 61, 0.55);
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 15px;
+}
+
+body {
+  margin: 0;
+  background: var(--papier);
+  color: var(--encre);
+  font-family: var(--police);
+  font-variation-settings: 'wdth' 100;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Titres : largeur condensée de l'Archivo, rappel des marquages d'inventaire */
+h1,
+h2,
+h3 {
+  font-variation-settings: 'wdth' 72;
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0;
+  letter-spacing: 0.005em;
+}
+h1 {
+  font-size: 2rem;
+}
+h2 {
+  font-size: 1.35rem;
+}
+h3 {
+  font-size: 1.07rem;
+}
+
+p {
+  margin: 0 0 0.75rem;
+  max-width: 72ch;
+}
+
+a {
+  color: var(--olive);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+a:hover {
+  color: var(--encre);
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+  border-radius: var(--rayon);
+}
+
+/* ───────── Boutons ───────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.25rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--trait-fort);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  color: var(--encre);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:hover {
+  background: #fff;
+  border-color: var(--encre-douce);
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.btn-principal {
+  background: var(--signal);
+  border-color: var(--signal-fonce);
+  color: var(--encre);
+}
+.btn-principal:hover {
+  background: #edc254;
+  border-color: var(--signal-fonce);
+}
+.btn-danger {
+  color: var(--danger);
+  border-color: #dcb2ac;
+}
+.btn-danger:hover {
+  background: var(--danger-fond);
+  border-color: var(--danger);
+}
+.btn-discret {
+  border-color: transparent;
+  background: transparent;
+  padding-inline: 0.5rem;
+}
+.btn-discret:hover {
+  background: var(--olive-clair);
+  border-color: transparent;
+}
+.btn-petit {
+  min-height: 1.85rem;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.9rem;
+}
+
+/* ───────── Formulaires ───────── */
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.champ > span {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.champ small {
+  color: var(--encre-douce);
+}
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  min-height: 2.25rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--trait-fort);
+  border-radius: var(--rayon);
+  background: #fff;
+  width: 100%;
+}
+textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--signal-fonce);
+  box-shadow: var(--focus);
+}
+input[type='checkbox'] {
+  width: auto;
+  min-height: 0;
+  accent-color: var(--olive);
+}
+.grille-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.9rem 1rem;
+}
+.actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 1.2rem;
+}
+
+/* ───────── Tableaux ───────── */
+.table-conteneur {
+  overflow-x: auto;
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon-grand);
+  background: var(--surface);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  text-align: left;
+  padding: 0.55rem 0.8rem;
+  border-bottom: 1px solid var(--trait);
+  vertical-align: middle;
+}
+th {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--encre-douce);
+  background: var(--papier);
+  white-space: nowrap;
+}
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+tbody tr.cliquable {
+  cursor: pointer;
+}
+tbody tr.cliquable:hover {
+  background: #fff;
+}
+td.num,
+th.num {
+  text-align: right;
+}
+
+/* ───────── Étiquette d'inventaire : l'élément signature ───────── */
+.etiquette {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.05rem 0.55rem 0.05rem 0.45rem;
+  border-radius: 3px 10px 10px 3px;
+  background: var(--signal);
+  color: var(--encre);
+  font-weight: 700;
+  font-size: 0.86rem;
+  font-variation-settings: 'wdth' 80;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.etiquette::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--papier);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+.etiquette.poste {
+  background: var(--olive-clair);
+  border: 1px solid #c3cdb7;
+}
+a.etiquette:hover {
+  filter: brightness(1.05);
+  color: var(--encre);
+}
+
+/* ───────── Mise en page ───────── */
+.entete-page {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.4rem;
+}
+.entete-page p {
+  margin: 0.35rem 0 0;
+  color: var(--encre-douce);
+}
+.section {
+  margin-top: 2rem;
+}
+.section > h2,
+.section > header {
+  margin-bottom: 0.8rem;
+}
+.section > header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.bloc {
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon-grand);
+  background: var(--surface);
+  padding: 1rem 1.1rem;
+}
+.filtres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  align-items: flex-end;
+}
+.filtres .champ {
+  flex: 1 1 160px;
+}
+.filtres .champ.large {
+  flex: 3 1 260px;
+}
+.discret {
+  color: var(--encre-douce);
+}
+.petit {
+  font-size: 0.88rem;
+}
+.vide {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--encre-douce);
+}
+.liste-definitions {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.4rem 1.2rem;
+  margin: 0;
+}
+.liste-definitions dt {
+  color: var(--encre-douce);
+}
+.liste-definitions dd {
+  margin: 0;
+}
+.deux-colonnes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+  h1 {
+    font-size: 1.6rem;
+  }
+  .deux-colonnes {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
