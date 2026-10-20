@@ -101,6 +101,8 @@ erDiagram
 Le schéma complet (types, contraintes, index) est dans [`backend/prisma/schema.prisma`](../backend/prisma/schema.prisma).
 
 Choix notables :
+- **Prisma « sans moteur Rust »** (`engineType = "client"` + adaptateur `@prisma/adapter-pg`) : les requêtes passent par le
+  pilote PostgreSQL `pg`, aucun binaire natif n'est chargé à l'exécution.
 - **Fin d'aptitude calculée**, jamais stockée : modifier la durée d'un type met à jour tout le parc.
 - **Mouvements avec libellés figés** : l'historique reste lisible même si une salle est renommée ou supprimée.
 - **Statistiques agrégées par jour** (`stats_processus`) via un `INSERT … ON CONFLICT` unique par heartbeat ; les

@@ -8,6 +8,7 @@ import FenetreModale from '@/components/FenetreModale.vue';
 import JaugeUsage from '@/components/JaugeUsage.vue';
 import JetonAgent from '@/components/JetonAgent.vue';
 import { useAuthStore } from '@/stores/auth';
+import { estSysteme } from '@/utils/processus';
 import { useNotificationsStore } from '@/stores/notifications';
 import {
   ETATS,
@@ -206,7 +207,8 @@ async function supprimer() {
               <td class="num">{{ p.cpu.toFixed(1) }} %</td>
               <td class="num">{{ Math.round(p.memoireMo) }} Mo</td>
               <td v-if="auth.peut('tuerProcessus')">
-                <button class="btn btn-petit btn-danger" @click="tuer(p.pid, p.nom)">Tuer</button>
+                <span v-if="estSysteme(p)" class="discret petit" title="Processus du système d'exploitation">Système</span>
+                <button v-else class="btn btn-petit btn-danger" @click="tuer(p.pid, p.nom)">Tuer</button>
               </td>
             </tr>
           </tbody>

@@ -5,6 +5,7 @@ import { api } from '@/api/client';
 import type { RegleProcessus, TypeRegle, VueSalle } from '@/api/types';
 import JaugeUsage from '@/components/JaugeUsage.vue';
 import { useAuthStore } from '@/stores/auth';
+import { estSysteme } from '@/utils/processus';
 import { useNotificationsStore } from '@/stores/notifications';
 import { useReferentielStore } from '@/stores/referentiel';
 import { depuis } from '@/utils/format';
@@ -189,6 +190,7 @@ async function supprimerRegle(id: number) {
                 <td class="num">{{ Math.round(pr.memoireMo) }}</td>
                 <td v-if="auth.peut('tuerProcessus')" class="num">
                   <span v-if="pr.arretDemande" class="discret petit">Arrêt demandé</span>
+                  <span v-else-if="estSysteme(pr)" class="discret petit" title="Processus du système d'exploitation">Système</span>
                   <button v-else class="btn btn-petit btn-danger" @click="tuer(posteOuvert.id, pr.pid, pr.nom)">Tuer</button>
                 </td>
               </tr>

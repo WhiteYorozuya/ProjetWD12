@@ -7,7 +7,9 @@ const route = useRoute();
 </script>
 
 <template>
-  <RouterView v-if="route.meta.public" />
+  <!-- Rien n'est rendu avant la résolution de la première route (évite d'appeler l'API sans session) -->
+  <template v-if="!route.matched.length" />
+  <RouterView v-else-if="route.meta.public" />
   <AppLayout v-else>
     <RouterView :key="route.path" />
   </AppLayout>
