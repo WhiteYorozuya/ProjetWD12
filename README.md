@@ -10,4 +10,5 @@ Elle vise à remplacer la gestion du parc informatique sous Excel par un outil c
 
 ## Documentation
 
-Le besoin, le périmètre fonctionnel, les livrables et les critères d’évaluation sont détaillés dans les [consignes du projet](doc/consignes.md).
+- [Consignes du projet](docs/consignes.md) : besoin, périmètre fonctionnel, livrables et critères d’évaluation.
+- [Questions de cadrage](docs/questions-cadrage.md) : questions à traiter avec le commanditaire avant de définir l’architecture et le backlog.
